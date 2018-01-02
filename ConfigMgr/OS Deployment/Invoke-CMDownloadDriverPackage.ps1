@@ -76,7 +76,11 @@ Process {
 
 		    [parameter(Mandatory=$false, HelpMessage="Name of the log file that the entry will written to.")]
 		    [ValidateNotNullOrEmpty()]
-		    [string]$FileName = "DriverPackageDownload.log"
+		    [string]$FileName = "DriverPackageDownload.log",
+
+            [parameter(Mandatory=$false, HelpMessage="Attempt to match the image version with the version of the downloaded driver package. Hewlett-Packard and Microsoft Only.")]
+		    [ValidateNotNullOrEmpty()]
+		    [switch]$VersionMatch = $true
 	    )
 	    # Determine log file location
         $LogFilePath = Join-Path -Path $Script:TSEnvironment.Value("_SMSTSLogPath") -ChildPath $FileName
@@ -201,12 +205,20 @@ Process {
                         if ($OSName -like "Windows 10") {
                             switch ($ComputerManufacturer) {
                                 "Hewlett-Packard" {
-                                    if ($Package.PackageName -match $OSImageVersion) {
+                                    if ($VersionMatch){
+                                        if ($Package.PackageName -match $OSImageVersion) {
+                                            $MatchFound = $true
+                                        }
+                                    } else {
                                         $MatchFound = $true
                                     }
                                 }
                                 "Microsoft" {
-                                    if ($Package.PackageName -match $OSImageVersion) {
+                                    if ($VersionMatch){
+                                        if ($Package.PackageName -match $OSImageVersion) {
+                                            $MatchFound = $true
+                                        }
+                                    } else {
                                         $MatchFound = $true
                                     }
                                 }
